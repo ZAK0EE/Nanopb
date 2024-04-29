@@ -7,7 +7,7 @@
 
 #include "HAL/HUART/HUART.h"
 #include "MCAL/RCC/RCC.h"
-uint8_t rx_buffer[100];
+uint8_t rx_buffer[100] = {0};
 
 
 HUSART_UserReq_t HUART_RxReq;
@@ -15,29 +15,21 @@ HUSART_UserReq_t HUART_RxReq;
 void on_UART_Receive(void)
 {
 
-    if(HUART_RxReq.Buff_Len == 1)
+
+  /* Allocate space for the decoded message. */
+    Example outmessage = Example_init_zero;
+    
+    /* Create a stream that reads from the buffer. */
+    pb_istream_t instream = pb_istream_from_buffer(rx_buffer, HUART_RxReq.Buff_Len);
+    
+    /* Now we are ready to decode the message. */
+    volatile bool status = pb_decode(&instream, Example_fields, &outmessage);
+    
+    /* Check for errors... */
+    if (!status)
     {
-        HUART_RxReq.Buff_Len = rx_buffer[0];
-    }
-    else
-    {
-        /* Allocate space for the decoded message. */
-        Example outmessage = Example_init_zero;
-        
-        /* Create a stream that reads from the buffer. */
-        pb_istream_t instream = pb_istream_from_buffer(rx_buffer, HUART_RxReq.Buff_Len);
-        
-        /* Now we are ready to decode the message. */
-        bool status = pb_decode(&instream, Example_fields, &outmessage);
-        
-        volatile int x = 0;
-        x++;
-        /* Check for errors... */
-        if (!status)
-        {
-            //printf("Decoding failed: %s\n", PB_GET_ERROR(&stream));
-            return;
-        }
+        //printf("Decoding failed: %s\n", PB_GET_ERROR(&stream));
+        return;
     }
  
 }
@@ -55,7 +47,7 @@ int main(void)
     {
         .USART_ID = USART1_ID,
         .Ptr_buffer= &rx_buffer,
-        .Buff_Len = 6,
+        .Buff_Len = 2,
         .Buff_cb = on_UART_Receive,
     };
     
