@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "accelero.h": "c",
+        "message.pb.h": "c",
+        "system_error": "c",
+        "iosfwd": "c",
+        "stm32f4xx_hal.h": "c",
+        "stm32f401xc.h": "c",
+        "huart.h": "c",
+        "clk_control.h": "c",
+        "rcc.h": "c",
+        "nvic.h": "c",
+        "gpio.h": "c"
+    }
+}
