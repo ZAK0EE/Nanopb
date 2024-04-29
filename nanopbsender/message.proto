@@ -1,3 +1,16 @@
+import "nanopb.proto";
+
 message Example {
-  required int32 value = 1;
+  required uint32 value = 1;
+  option (nanopb_msgopt).msgid = 104;
+
 }
+
+message Example_second {
+  required uint32 value = 1;
+  option (nanopb_msgopt).msgid = 224;
+
+}
+
+
+

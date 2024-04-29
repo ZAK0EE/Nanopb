@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rmessage.proto\"\x18\n\x07\x45xample\x12\r\n\x05value\x18\x01 \x02(\x05')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rmessage.proto\"\x18\n\x07\x45xample\x12\r\n\x05value\x18\x01 \x02(\r\"\x1f\n\x0e\x45xample_second\x12\r\n\x05value\x18\x01 \x02(\r')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -23,4 +23,6 @@ if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_EXAMPLE']._serialized_start=17
   _globals['_EXAMPLE']._serialized_end=41
+  _globals['_EXAMPLE_SECOND']._serialized_start=43
+  _globals['_EXAMPLE_SECOND']._serialized_end=74
 # @@protoc_insertion_point(module_scope)

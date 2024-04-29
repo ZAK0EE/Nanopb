@@ -9,4 +9,7 @@
 PB_BIND(Example, Example, AUTO)
 
 
+PB_BIND(Example_second, Example_second, AUTO)
+
+
 
