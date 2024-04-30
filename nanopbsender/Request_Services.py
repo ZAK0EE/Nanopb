@@ -3,8 +3,8 @@ import serial
 import time
 
 # Define COM number of serial port
-COM_NUM = 'COM10'
-SERIAL_BAUD_RATE = 115200
+COM_NUM = 'COM11'
+SERIAL_BAUD_RATE = 9600
 
 GPIOA = 0x0
 GPIOB = 0x1
@@ -137,12 +137,15 @@ def Request_Read_Pin(Port, PinNum):
     send_over_uart(serialized_header)
     #time.sleep(0.001)
     send_over_uart(serialized_ReadPin)
-    #time.sleep(0.001)
+    time.sleep(0.001)
 
     return Request_PinValue_Receive()
 
 def Request_PinValue_Receive():
+
     headerBuffer = receive_over_uart(10)
+    print(headerBuffer.__len__())
+    print(headerBuffer)
     print("3dena el uart")
 
     HeaderMsg = message_pb2.Msg_Header()
@@ -153,13 +156,16 @@ def Request_PinValue_Receive():
 
     PinValueMsg = message_pb2.Msg_PinValue()
     PinValueBuffer = receive_over_uart(HeaderMsg.msg_len)
+
+    print(PinValueBuffer.__len__())
+    print(PinValueBuffer)
     PinValueMsg.ParseFromString(PinValueBuffer)
 
-    print(f"PinValueMsg.Port:{PinValueMsg.Port}")
-    print(f"PinValueMsg.PinNum:{PinValueMsg.PinNum}")
-    print(f"PinValueMsg.Value:{PinValueMsg.Value}")
+    print(f"PinValueMsg.Port:{PinValueMsg.Pin_Port}")
+    print(f"PinValueMsg.PinNum:{PinValueMsg.Pin_Num}")
+    print(f"PinValueMsg.Value:{PinValueMsg.Pin_Read}")
 
-    return PinValueMsg.Value
+    return PinValueMsg.Pin_Read
     
 
 # Send the serialized data over UART

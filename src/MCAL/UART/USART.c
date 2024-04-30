@@ -361,10 +361,11 @@ Error_enumStatus_t USART_SendByte(USART_UserReq_t *Ptr_UserReq)
             volatile uint16_t Time = 2000;
             /* Set transmit request state to busy */
             TxReq[Loc_Reqidx].state = USART_ReqBusy;
-            /* Transmit the byte of data */
-            ((USART_PERI_t *)USART[Loc_Reqidx])->USART_DR = *(Ptr_UserReq->Ptr_buffer);
             /* Enable USART transmit */
             ((USART_PERI_t *)USART[Loc_Reqidx])->USART_CR1 |= UART_TX_ENABLE_MASK;
+
+            /* Transmit the byte of data */
+            ((USART_PERI_t *)USART[Loc_Reqidx])->USART_DR = *(Ptr_UserReq->Ptr_buffer);
             /* Wait for transmission to complete */
             while ((((((USART_PERI_t *)USART[Loc_Reqidx])->USART_SR) & (UART_TX_EMPTY_FLAG)) == 0) && Time)
             {

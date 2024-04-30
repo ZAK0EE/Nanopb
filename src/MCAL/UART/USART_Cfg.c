@@ -21,10 +21,18 @@ const  USART_Config_t USARTS[_USART_Num] =
 {
  [UASART_1]={
     .USART_ID=USART1_ID,
-    .BaudRate=115200,
+    .BaudRate=9600,
     .WordLength=USART_WL_8BIT_DATA,
     .ParityEn=USART_PARITY_DISABLE,
     .ParityType=0,
     .StopBits=USART_STOP_BIT_1,
-    .OverSamplingMode=USART_OVS_16}
+    .OverSamplingMode=USART_OVS_16},
+  [UASART_2]={
+    .USART_ID=USART2_ID,
+    .BaudRate=9600,
+    .WordLength=USART_WL_8BIT_DATA,
+    .ParityEn=USART_PARITY_DISABLE,
+    .ParityType=0,
+    .StopBits=USART_STOP_BIT_1,
+    .OverSamplingMode=USART_OVS_16},   
 };

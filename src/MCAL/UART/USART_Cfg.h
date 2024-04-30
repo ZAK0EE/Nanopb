@@ -15,6 +15,7 @@
 typedef enum 
 {
 	UASART_1,
+	UASART_2,
 	/*Indicate number of USARTd don't use it */
     _USART_Num 
 }USARTS_t;

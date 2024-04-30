@@ -120,8 +120,10 @@ void send_second(void)
     /* Encode the message to get its size*/
     pb_encode(&messageStream, msg_fields, dest_struct);
       /* Send message */
-   HUART_TxReq.Ptr_buffer= messagebytes,
-   HUART_TxReq.Buff_Len = messageStream.bytes_written,
+   HUART_TxReq.Ptr_buffer= messagebytes;
+   HUART_TxReq.Buff_Len = messageStream.bytes_written;
+    for(volatile uint32_t i = 0; i < 200000; i++);
+
     HUART_SendBuffAsync(&HUART_TxReq);
 }
 void Proto_Send(MessageID_t MsgID)
@@ -158,14 +160,36 @@ void Proto_Send(MessageID_t MsgID)
     HUSART_UserReq_t HUART_TxReq =
     {
         .USART_ID = USART1_ID,
-        .Buff_cb = send_second,
+        .Buff_cb = 0,
     };
 
     /* Send Header*/
     HUART_TxReq.Ptr_buffer= headerbytes,
-    HUART_TxReq.Buff_Len = headerStream.bytes_written,
-    HUART_SendBuffAsync(&HUART_TxReq);
+   // HUART_TxReq.Ptr_buffer[0] += 1;
+    HUART_TxReq.Buff_Len = headerStream.bytes_written;
 
+#define msgdelay 400000
+    for(volatile uint32_t i = 0; i < msgdelay; i++);
+    //HUART_SendBuffAsync(&HUART_TxReq);
+    USART_UserReq_t txreq = {.USART_ID = USART1_ID, .Ptr_buffer=  headerbytes, .Buff_Len = 1,.Buff_cb = 0};
+
+    for(int i = 0; i < headerStream.bytes_written; i++)
+    {
+      txreq.Ptr_buffer = &headerbytes[i];
+      USART_SendByte(&txreq);
+      for(volatile uint32_t i = 0; i < msgdelay; i++);
+    }
+
+    for(volatile uint32_t i = 0; i < msgdelay; i++);
+    //HUART_SendBuffAsync(&HUART_TxReq);
+
+    for(int i = 0; i < messageStream.bytes_written; i++)
+    {
+      txreq.Ptr_buffer = &messagebytes[i];
+      USART_SendByte(&txreq);
+      if(i < messageStream.bytes_written)
+        for(volatile uint32_t i = 0; i < msgdelay; i++);
+    }
 //for(volatile uint32_t x = 0-1; x > 1; x--);
     /* Send message */
   //  HUART_TxReq.Ptr_buffer= messagebytes,
@@ -313,8 +337,19 @@ int main(void)
       .Buff_cb = on_UART_Receive,
   };
 
-  HUART_ReceiveBuffAsync(&HUART_RxReq);
 
+  HUART_ReceiveBuffAsync(&HUART_RxReq);
+    HUSART_UserReq_t HUART_TxReq =
+    {
+        .USART_ID = USART1_ID,
+        .Buff_cb = 0,
+    };
+
+  // uint8_t x = 13;
+  //   /* Send Header*/
+  //   HUART_TxReq.Ptr_buffer= &x,
+  //   HUART_TxReq.Buff_Len = 1,
+  //   HUART_SendBuffAsync(&HUART_TxReq);
   // Main loop
   while (1)
   {
