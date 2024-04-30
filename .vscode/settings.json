@@ -12,5 +12,8 @@
         "nvic.h": "c",
         "gpio.h": "c",
         "pb_decode.h": "c"
-    }
+    },
+    "python.analysis.extraPaths": [
+        "./nanopbsender"
+    ]
 }
