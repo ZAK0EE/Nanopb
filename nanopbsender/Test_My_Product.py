@@ -4,8 +4,7 @@ import time
 Request_Set_Pin(GPIOA,PIN0)
 time.sleep(5)
 
-Request_Toggle_Pin(GPIOA,PIN1)
-time.sleep(5)
+ReadValue = Request_Read_Pin(GPIOA, PIN0)
 
-Request_Reset_Pin(GPIOA,PIN0)
-time.sleep(5)
+if ReadValue == STATE_HIGH:
+    Request_Set_Pin(GPIOA, PIN1)
