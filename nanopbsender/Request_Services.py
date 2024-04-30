@@ -18,10 +18,14 @@ PIN5 = 0x5
 PIN6 = 0x6
 PIN7 = 0x7
 
+STATE_HIGH = 0x1
+STATE_LOW = 0x0
+
 Service_Set_Pin = 0x2
 Service_Reset_Pin = 0x0
 Service_Read_Pin = 0x1
 Service_Toggle_Pin = 0x3
+
 
 
 # Function to send serialized data over UART (pseudo-code)
@@ -121,7 +125,7 @@ def Request_Read_Pin(Port, PinNum):
     ReadPin_Msg.Pin_Num = PinNum
     serialized_ReadPin = ReadPin_Msg.SerializeToString()
 
-    Header_Msg.msg_ID = Service_Reset_Pin
+    Header_Msg.msg_ID = Service_Read_Pin
     Header_Msg.msg_len = serialized_ReadPin.__len__()
     serialized_header = Header_Msg.SerializeToString()
 
