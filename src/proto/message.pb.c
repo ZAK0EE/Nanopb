@@ -6,10 +6,22 @@
 #error Regenerate this file with the current version of nanopb generator.
 #endif
 
-PB_BIND(Example, Example, AUTO)
+PB_BIND(Msg_ResetPin, Msg_ResetPin, AUTO)
 
 
-PB_BIND(Example_second, Example_second, AUTO)
+PB_BIND(Msg_ReadPin, Msg_ReadPin, AUTO)
+
+
+PB_BIND(Msg_PinValue, Msg_PinValue, AUTO)
+
+
+PB_BIND(Msg_SetPin, Msg_SetPin, AUTO)
+
+
+PB_BIND(Msg_TogglePin, Msg_TogglePin, AUTO)
+
+
+PB_BIND(Msg_Header, Msg_Header, AUTO)
 
 
 

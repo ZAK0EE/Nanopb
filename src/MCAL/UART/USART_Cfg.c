@@ -21,7 +21,7 @@ const  USART_Config_t USARTS[_USART_Num] =
 {
  [UASART_1]={
     .USART_ID=USART1_ID,
-    .BaudRate=9600,
+    .BaudRate=115200,
     .WordLength=USART_WL_8BIT_DATA,
     .ParityEn=USART_PARITY_DISABLE,
     .ParityType=0,

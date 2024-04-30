@@ -1,16 +1,30 @@
-import "nanopb.proto";
-
-message Example {
-  required uint32 value = 1;
-  option (nanopb_msgopt).msgid = 104;
-
+message Msg_ResetPin{
+  required uint32 Pin_Port = 1;
+  required uint32 Pin_Num = 2;
 }
 
-message Example_second {
-  required uint32 value = 1;
-  option (nanopb_msgopt).msgid = 224;
-
+message Msg_ReadPin{
+  required uint32 Pin_Port = 1;
+  required uint32 Pin_Num = 2;
 }
 
+message Msg_PinValue{
+  required uint32 Pin_Port = 1;
+  required uint32 Pin_Num = 2;
+  required uint32 Pin_Read = 3;
+}
 
+message Msg_SetPin{
+  required uint32 Pin_Port = 1;
+  required uint32 Pin_Num = 2;
+}
 
+message Msg_TogglePin{
+  required uint32 Pin_Port = 1;
+  required uint32 Pin_Num = 2;
+}
+
+message Msg_Header{
+  required fixed32 msg_ID = 1;
+  required fixed32 msg_len = 2;
+}

@@ -3,24 +3,34 @@ import serial
 
 
 # Create an instance of the Example message and set its value
-example_message = message_pb2.Example()
-print(example_message.value)
-example_message.value = 0x11223344
+headermsg = message_pb2.Msg_Header()
+headermsg.msg_ID = 3
+headermsg.msg_len = 0
 
-serialized_data = example_message.SerializeToString()
 
+examplemsg = message_pb2.Msg_TogglePin()
+examplemsg.Pin_Port = 0 
+examplemsg.Pin_Num = 0
+serialized_msg = examplemsg.SerializeToString()
+
+headermsg.msg_len = serialized_msg.__len__()
+serialized_header = headermsg.SerializeToString()
 
 # Function to send serialized data over UART (pseudo-code)
 def send_over_uart(data):
     # Initialize serial connection
-    print(f"data length {data.__len__()}")
-    ser = serial.Serial('COM10', 9600)  # Adjust port and baudrate as needed
+    #print(f"data length {data.__len__()}")
+    ser = serial.Serial('COM10', 115200)  # Adjust port and baudrate as needed
     # Write data to UART
-    ser.write(b'\n') # delimiter for the end of the message
     ser.write(data)
-    ser.write(b'\n') # delimiter for the end of the message
     # Close serial connection
     ser.close()
 
 # Send the serialized data over UART
-send_over_uart(serialized_data)
+send_over_uart(serialized_header)
+send_over_uart(serialized_msg)
+
+# Send the serialized data over UART
+send_over_uart(serialized_header)
+send_over_uart(serialized_msg)
+
