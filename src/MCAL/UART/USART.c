@@ -595,9 +595,9 @@ void USART1_IRQHandler(void)
         else
         {
             /* Disable TXE interrupt */
-            Lo_CR1_Value &= ~(UART_TXE_ENABLE_MASK);
+           // Lo_CR1_Value &= ~(UART_TXE_ENABLE_MASK);
             TxReq[g_UART1_idx].state = USART_ReqReady;
-            ((USART_PERI_t *)USART[g_UART1_idx])->USART_CR1 = Lo_CR1_Value;
+        //    ((USART_PERI_t *)USART[g_UART1_idx])->USART_CR1 = Lo_CR1_Value;
             /* Call callback function if available */
             if (TxReq[g_UART1_idx].CB)
             {
