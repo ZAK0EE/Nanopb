@@ -18,11 +18,14 @@ PIN5 = 0x5
 PIN6 = 0x6
 PIN7 = 0x7
 
+STATE_HIGH = 0x1
+STATE_LOW  = 0x0
+
 Service_Set_Pin = 0x2
 Service_Reset_Pin = 0x0
 Service_Read_Pin = 0x1
 Service_Toggle_Pin = 0x3
-
+Service_Pin_Value = 0x4
 
 # Function to send serialized data over UART (pseudo-code)
 def send_over_uart(data):
@@ -121,7 +124,7 @@ def Request_Read_Pin(Port, PinNum):
     ReadPin_Msg.Pin_Num = PinNum
     serialized_ReadPin = ReadPin_Msg.SerializeToString()
 
-    Header_Msg.msg_ID = Service_Reset_Pin
+    Header_Msg.msg_ID = Service_Read_Pin
     Header_Msg.msg_len = serialized_ReadPin.__len__()
     serialized_header = Header_Msg.SerializeToString()
 
@@ -135,7 +138,26 @@ def Request_Read_Pin(Port, PinNum):
     send_over_uart(serialized_ReadPin)
     time.sleep(0.001)
 
+    return Request_PinValue_Receive()
 
+def Request_PinValue_Receive():
+    headerBuffer = receive_over_uart(10)
+
+    HeaderMsg = message_pb2.Msg_Header()
+    HeaderMsg.ParseFromeString(headerBuffer)
+
+    print(f"HeaderMsg.ID:{HeaderMsg.msg_ID}")
+    print(f"HeaderMsg.len:{HeaderMsg.msg_len}")
+
+    PinValueMsg = message_pb2.Msg_PinValue()
+    PinValueBuffer = receive_over_uart(HeaderMsg.msg_len)
+    PinValueMsg.ParseFromeString(PinValueBuffer)
+
+    print(f"PinValueMsg.Port:{PinValueMsg.Port}")
+    print(f"PinValueMsg.PinNum:{PinValueMsg.PinNum}")
+    print(f"PinValueMsg.Value:{PinValueMsg.Value}")
+
+    return PinValueMsg.Value
     
 
 # Send the serialized data over UART
