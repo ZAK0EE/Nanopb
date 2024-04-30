@@ -3,8 +3,8 @@ import serial
 import time
 
 # Define COM number of serial port
-COM_NUM = 'COM6'
-SERIAL_BAUD_RATE = 9600
+COM_NUM = 'COM10'
+SERIAL_BAUD_RATE = 115200
 
 GPIOA = 0x0
 GPIOB = 0x1

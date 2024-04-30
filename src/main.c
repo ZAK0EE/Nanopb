@@ -30,6 +30,15 @@ typedef enum
   MSG_RECEIVE_STATE,
 }ProtoBuf_Receive_State_t;
 
+/* Received Messages handlers */
+typedef enum
+{
+  MSG_RESETPIN_ID,
+  MSG_READPIN_ID,
+  MSG_SETPIN_ID,
+  MSG_TOGGLEPIN_ID,
+  MSG_PINVALUE_ID,
+}MessageID_t;
 /********************************************************************************************************/
 /*****************************************Static Functions Prototype*************************************/
 /********************************************************************************************************/
@@ -37,12 +46,14 @@ static void ResetPinHandler(void);
 static void ReadPinHandler(void);
 static void SetPinHandler(void);
 static void TogglePinHandler(void);
+static void Proto_Send(MessageID_t MsgID);
 
 /********************************************************************************************************/
 /************************************************Variables***********************************************/
 /********************************************************************************************************/
 
-uint8_t rx_buffer[100] = {0};
+uint8_t Proto_Rx_Buffer[50] = {0};
+uint8_t Proto_Tx_Buffer[50] = {0};
 
 HUSART_UserReq_t HUART_RxReq;
 
@@ -56,14 +67,7 @@ Msg_TogglePin TogglePinMsg;
 Msg_PinValue  PinValueMsg;
 
 
-/* Received Messages handlers */
-typedef enum
-{
-  MSG_RESETPIN_ID,
-  MSG_READPIN_ID,
-  MSG_SETPIN_ID,
-  MSG_TOGGLEPIN_ID,
-}MessageID_t;
+
 
 void (*messageHandlers[])(void) = {ResetPinHandler, ReadPinHandler, SetPinHandler, TogglePinHandler};
 
@@ -79,7 +83,11 @@ static void ResetPinHandler(void)
 }
 static void ReadPinHandler(void)
 {
-  
+  GPIO_PinState_t PinState = GPIO_getPinValue(ReadPinMsg.Pin_Port, ReadPinMsg.Pin_Num);
+  PinValueMsg.Pin_Port = ReadPinMsg.Pin_Port;
+  PinValueMsg.Pin_Num = ReadPinMsg.Pin_Num;
+  PinValueMsg.Pin_Read = PinState;
+  Proto_Send(MSG_PINVALUE_ID);
 }
 static void SetPinHandler(void)
 {
@@ -93,13 +101,60 @@ static void TogglePinHandler(void)
 
 }
 
-void Proto_Sent(void)
+void Proto_Send(MessageID_t MsgID)
 {
-  
+    Msg_Header HeaderMsg = Msg_Header_init_zero;
+    HeaderMsg.msg_ID = MsgID;
+
+    uint8_t headerbytes[20];
+    uint8_t messagebytes[20];
+
+    pb_ostream_t headerStream = pb_ostream_from_buffer(headerbytes, sizeof(headerbytes));
+    pb_ostream_t messageStream = pb_ostream_from_buffer(messagebytes, sizeof(messagebytes));
+
+    void * dest_struct = 0;
+    const pb_msgdesc_t* msg_fields = 0;
+    switch(MsgID)
+    {
+      case MSG_PINVALUE_ID:
+        dest_struct = &ReadPinMsg;
+        msg_fields = Msg_ReadPin_fields;      
+      break;
+      default:
+      break;
+    }
+    /* Encode the message to get its size*/
+    pb_encode(&messageStream, msg_fields, dest_struct);
+
+    HeaderMsg.msg_len = messageStream.bytes_written;
+
+    /* Encode the header*/
+    pb_encode(&headerStream, Msg_Header_fields, &HeaderMsg);
+
+
+    HUSART_UserReq_t HUART_TxReq =
+    {
+        .USART_ID = USART1_ID,
+        .Buff_cb = 0,
+    };
+
+    /* Send Header*/
+    HUART_TxReq.Ptr_buffer= headerbytes,
+    HUART_TxReq.Buff_Len = headerStream.bytes_written,
+    HUART_SendBuffAsync(&HUART_TxReq);
+
+    /* Send message */
+    HUART_TxReq.Ptr_buffer= messagebytes,
+    HUART_TxReq.Buff_Len = messageStream.bytes_written,
+    HUART_SendBuffAsync(&HUART_TxReq);
+
+
+
+
 }
 void Proto_Receive(void)
 {
-   static uint8_t state = 0;
+  static uint8_t state = 0;
 
   static MessageID_t MessageID = 0;
   static uint32_t MessageLen = 0;
@@ -112,7 +167,7 @@ void Proto_Receive(void)
 
     /* Create a stream that reads from the buffer. */
     pb_istream_t instream;
-    instream = pb_istream_from_buffer(rx_buffer, PROTOBUFF_HEADER_LEN);
+    instream = pb_istream_from_buffer(Proto_Rx_Buffer, PROTOBUFF_HEADER_LEN);
 
     /* Now we are ready to decode the message. */
     bool status = false;
@@ -129,9 +184,6 @@ void Proto_Receive(void)
       HUART_ReceiveBuffAsync(&HUART_RxReq);
 
       state++;
-    }
-    else
-    {
     }
 
     break;
@@ -160,13 +212,15 @@ void Proto_Receive(void)
         dest_struct = &TogglePinMsg;
         msg_fields = Msg_TogglePin_fields;      
       break;
+      default:
+      break;
     }
 
     if(dest_struct != 0)
     {
       /* Create a stream that reads from the buffer. */
       pb_istream_t instream;
-      instream = pb_istream_from_buffer(rx_buffer, MessageLen);
+      instream = pb_istream_from_buffer(Proto_Rx_Buffer, MessageLen);
 
       /* Now we are ready to decode the message. */
       bool status = false;
@@ -230,7 +284,7 @@ int main(void)
 
   HUART_RxReq = (HUSART_UserReq_t){
       .USART_ID = USART1_ID,
-      .Ptr_buffer = rx_buffer,
+      .Ptr_buffer = Proto_Rx_Buffer,
       .Buff_Len = PROTOBUFF_HEADER_LEN,
       .Buff_cb = on_UART_Receive,
   };
@@ -243,8 +297,6 @@ int main(void)
     // Main application code
   }
 
-  /* Print the data contained in the message. */
-  // printf("Your lucky number was %d!\n", (int)outmessage.value);
 }
 
 void assert_failed(uint8_t *file, uint32_t line)
