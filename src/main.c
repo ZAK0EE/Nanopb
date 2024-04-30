@@ -101,6 +101,29 @@ static void TogglePinHandler(void)
 
 }
 
+void send_second(void)
+{
+      uint8_t messagebytes[20];
+    pb_ostream_t messageStream = pb_ostream_from_buffer(messagebytes, sizeof(messagebytes));
+    void * dest_struct = 0;
+    const pb_msgdesc_t* msg_fields = 0;
+
+        dest_struct = &PinValueMsg;
+        msg_fields = Msg_PinValue_fields;      
+
+
+        HUSART_UserReq_t HUART_TxReq =
+    {
+        .USART_ID = USART1_ID,
+        .Buff_cb = 0,
+    };
+    /* Encode the message to get its size*/
+    pb_encode(&messageStream, msg_fields, dest_struct);
+      /* Send message */
+   HUART_TxReq.Ptr_buffer= messagebytes,
+   HUART_TxReq.Buff_Len = messageStream.bytes_written,
+    HUART_SendBuffAsync(&HUART_TxReq);
+}
 void Proto_Send(MessageID_t MsgID)
 {
     Msg_Header HeaderMsg = Msg_Header_init_zero;
@@ -117,8 +140,8 @@ void Proto_Send(MessageID_t MsgID)
     switch(MsgID)
     {
       case MSG_PINVALUE_ID:
-        dest_struct = &ReadPinMsg;
-        msg_fields = Msg_ReadPin_fields;      
+        dest_struct = &PinValueMsg;
+        msg_fields = Msg_PinValue_fields;      
       break;
       default:
       break;
@@ -135,7 +158,7 @@ void Proto_Send(MessageID_t MsgID)
     HUSART_UserReq_t HUART_TxReq =
     {
         .USART_ID = USART1_ID,
-        .Buff_cb = 0,
+        .Buff_cb = send_second,
     };
 
     /* Send Header*/
@@ -143,10 +166,11 @@ void Proto_Send(MessageID_t MsgID)
     HUART_TxReq.Buff_Len = headerStream.bytes_written,
     HUART_SendBuffAsync(&HUART_TxReq);
 
+//for(volatile uint32_t x = 0-1; x > 1; x--);
     /* Send message */
-    HUART_TxReq.Ptr_buffer= messagebytes,
-    HUART_TxReq.Buff_Len = messageStream.bytes_written,
-    HUART_SendBuffAsync(&HUART_TxReq);
+  //  HUART_TxReq.Ptr_buffer= messagebytes,
+   // HUART_TxReq.Buff_Len = messageStream.bytes_written,
+    //HUART_SendBuffAsync(&HUART_TxReq);
 
 
 

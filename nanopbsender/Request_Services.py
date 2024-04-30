@@ -135,24 +135,25 @@ def Request_Read_Pin(Port, PinNum):
     print(f"ReadPin_Msg.Pin_Num:{ReadPin_Msg.Pin_Num}")
 
     send_over_uart(serialized_header)
-    time.sleep(0.001)
+    #time.sleep(0.001)
     send_over_uart(serialized_ReadPin)
-    time.sleep(0.001)
+    #time.sleep(0.001)
 
     return Request_PinValue_Receive()
 
 def Request_PinValue_Receive():
     headerBuffer = receive_over_uart(10)
+    print("3dena el uart")
 
     HeaderMsg = message_pb2.Msg_Header()
-    HeaderMsg.ParseFromeString(headerBuffer)
+    HeaderMsg.ParseFromString(headerBuffer)
 
     print(f"HeaderMsg.ID:{HeaderMsg.msg_ID}")
     print(f"HeaderMsg.len:{HeaderMsg.msg_len}")
 
     PinValueMsg = message_pb2.Msg_PinValue()
     PinValueBuffer = receive_over_uart(HeaderMsg.msg_len)
-    PinValueMsg.ParseFromeString(PinValueBuffer)
+    PinValueMsg.ParseFromString(PinValueBuffer)
 
     print(f"PinValueMsg.Port:{PinValueMsg.Port}")
     print(f"PinValueMsg.PinNum:{PinValueMsg.PinNum}")
