@@ -165,30 +165,21 @@ void Proto_Send(MessageID_t MsgID)
 
     /* Send Header*/
     HUART_TxReq.Ptr_buffer= headerbytes,
-   // HUART_TxReq.Ptr_buffer[0] += 1;
     HUART_TxReq.Buff_Len = headerStream.bytes_written;
 
-#define msgdelay 400000
-    for(volatile uint32_t i = 0; i < msgdelay; i++);
-    //HUART_SendBuffAsync(&HUART_TxReq);
     USART_UserReq_t txreq = {.USART_ID = USART1_ID, .Ptr_buffer=  headerbytes, .Buff_Len = 1,.Buff_cb = 0};
 
     for(int i = 0; i < headerStream.bytes_written; i++)
     {
       txreq.Ptr_buffer = &headerbytes[i];
       USART_SendByte(&txreq);
-      for(volatile uint32_t i = 0; i < msgdelay; i++);
     }
 
-    for(volatile uint32_t i = 0; i < msgdelay; i++);
-    //HUART_SendBuffAsync(&HUART_TxReq);
 
     for(int i = 0; i < messageStream.bytes_written; i++)
     {
       txreq.Ptr_buffer = &messagebytes[i];
       USART_SendByte(&txreq);
-      if(i < messageStream.bytes_written)
-        for(volatile uint32_t i = 0; i < msgdelay; i++);
     }
 //for(volatile uint32_t x = 0-1; x > 1; x--);
     /* Send message */

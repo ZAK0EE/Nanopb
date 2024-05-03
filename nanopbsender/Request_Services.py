@@ -3,7 +3,7 @@ import serial
 import time
 
 # Define COM number of serial port
-COM_NUM = 'COM11'
+COM_NUM = 'COM9'
 SERIAL_BAUD_RATE = 9600
 
 GPIOA = 0x0
@@ -27,24 +27,37 @@ Service_Read_Pin = 0x1
 Service_Toggle_Pin = 0x3
 Service_Pin_Value = 0x4
 
+ser = serial.Serial(COM_NUM, SERIAL_BAUD_RATE)  # Adjust port and baudrate as needed
+ser.set_buffer_size(50)
+# clear serial buffer
+ser.reset_input_buffer()
+ser.reset_output_buffer()
 
 # Function to send serialized data over UART (pseudo-code)
 def send_over_uart(data):
+
+    print("befoer pass")
+
+    #check if UART is already sending
+    while ser.out_waiting > 0:
+        pass
+    print("after pass")
     # Initialize serial connection
     print(f"data length {data.__len__()}")
-    ser = serial.Serial(COM_NUM, SERIAL_BAUD_RATE)  # Adjust port and baudrate as needed
     # Write data to UART
     ser.write(data)
     # Close serial connection
-    ser.close()
+    #ser.close()
+
+def clear_uart_buffer():
+    # Clear UART buffer
+    ser.reset_input_buffer()
 
 def receive_over_uart(size):
-    # Initialize serial connection
-    ser = serial.Serial(COM_NUM, SERIAL_BAUD_RATE)  # Adjust port and baudrate as needed
     # Read data from UART
     received_data = ser.read(size)  # Adjust the number of bytes to read as needed
     # Close serial connection
-    ser.close()
+    #ser.close()
     return received_data
 
 def Request_Set_Pin(Port, PinNum):
@@ -89,9 +102,7 @@ def Request_Reset_Pin(Port, PinNum):
     print(f"ResetPin_Msg.Pin_Num:{ResetPin_Msg.Pin_Num}")
 
     send_over_uart(serialized_header)
-    time.sleep(0.001)
     send_over_uart(serialized_ResetPin)
-    time.sleep(0.001)
 
 def Request_Toggle_Pin(Port, PinNum):
     # Create an instance of the Example message and set its value
@@ -112,9 +123,7 @@ def Request_Toggle_Pin(Port, PinNum):
     print(f"Toggle_Msg.Pin_Num:{Toggle_Msg.Pin_Num}")
 
     send_over_uart(serialized_header)
-    time.sleep(0.001)
     send_over_uart(serialized_TogglePin)
-    time.sleep(0.001)
 
 def Request_Read_Pin(Port, PinNum):
     # Create an instance of the Example message and set its value
@@ -133,11 +142,9 @@ def Request_Read_Pin(Port, PinNum):
     print(f"Header_Msg.msg_len:{Header_Msg.msg_len}")
     print(f"ReadPin_Msg.Pin_Port:{ReadPin_Msg.Pin_Port}")
     print(f"ReadPin_Msg.Pin_Num:{ReadPin_Msg.Pin_Num}")
-
+    clear_uart_buffer()
     send_over_uart(serialized_header)
-    #time.sleep(0.001)
     send_over_uart(serialized_ReadPin)
-    time.sleep(0.001)
 
     return Request_PinValue_Receive()
 
